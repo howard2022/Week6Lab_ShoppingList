@@ -17,15 +17,22 @@ public class ShoppingListServlet extends HttpServlet {
         HttpSession session = request.getSession();
 
         String action = request.getParameter("action");
-
-        if (action==null){
+        String username = (String)session.getAttribute("username");
+        
+        if (username!=null){
+            getServletContext().getRequestDispatcher("/WEB-INF/shoppingList.jsp").
+                    forward(request, response);
+        }else if (session.getAttribute("username")==null){
             getServletContext().getRequestDispatcher("/WEB-INF/register.jsp").
                     forward(request, response);
         }else if (request.getParameter("logout") != null) {
             session.invalidate();
+            
             getServletContext().getRequestDispatcher("/WEB-INF/register.jsp").
                     forward(request, response);
-            
+        }else{
+            getServletContext().getRequestDispatcher("/WEB-INF/shoppingList.jsp").
+                    forward(request, response);
         }
 
         
@@ -36,6 +43,7 @@ public class ShoppingListServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+ 
         HttpSession session = request.getSession();
         String action = request.getParameter("action");
         String username = request.getParameter("username");
@@ -61,20 +69,28 @@ public class ShoppingListServlet extends HttpServlet {
             getServletContext().getRequestDispatcher("/WEB-INF/shoppingList.jsp")
                     .forward(request, response);
             }else if (itemList != null) {
-            itemList=(ArrayList<String>)session.getAttribute("itemList");
+            itemList.add(item);
+            session.setAttribute("itemList",itemList);
             getServletContext().getRequestDispatcher("/WEB-INF/shoppingList.jsp")
                     .forward(request, response);
             }
             
         }else if (action.equals("delete")){
-            ArrayList<String> itemList=(ArrayList<String>)session.getAttribute("items");
+            ArrayList<String> itemList=(ArrayList<String>)session.getAttribute("itemList");
             if (itemList!=null||!itemList.equals("")){
                 String selectedItem = request.getParameter("itemSelected");
                 itemList.remove(selectedItem);
-                session.setAttribute("items",itemList);
+                session.setAttribute("itemList",itemList);
+                getServletContext().getRequestDispatcher("/WEB-INF/shoppingList.jsp")
+                        .forward(request, response);
+
+            } else {
                 getServletContext().getRequestDispatcher("/WEB-INF/shoppingList.jsp")
                         .forward(request, response);
             }
+        } else{
+                getServletContext().getRequestDispatcher("/WEB-INF/shoppingList.jsp")
+                        .forward(request, response);
         }
         
 
